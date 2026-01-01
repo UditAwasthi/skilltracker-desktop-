@@ -1,0 +1,29 @@
+<!DOCTYPE html>
+<html>
+<head><link rel="stylesheet" href="style.css"></head>
+<body>
+<div class="sidebar">
+  <h2>SkillTracker</h2>
+  <a href="dashboard.html">Dashboard</a>
+  <a href="skills.html">Skills</a>
+  <a href="streak.html">Streak</a>
+  <a onclick="logout()" style="background:#c62828;">Logout</a>
+</div>
+
+<div class="content">
+  <h1>Daily Streak</h1>
+  <button onclick="check()">Check Streak</button>
+  <pre id="result"></pre>
+</div>
+
+<script>
+async function check(){
+  const res = await window.backend.streak();
+  document.getElementById("result").innerText = JSON.stringify(res.data,null,2);
+}
+function logout(){ window.backend.logout(); location.href="login.html"; }
+
+check();
+</script>
+</body>
+</html>

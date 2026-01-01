@@ -1,0 +1,31 @@
+<!DOCTYPE html>
+<html>
+<head><link rel="stylesheet" href="style.css"></head>
+<body>
+<div class="sidebar">
+  <h2>SkillTracker</h2>
+  <a href="dashboard.html">Dashboard</a>
+  <a href="skills.html">Skills</a>
+  <a href="streak.html">Streak</a>
+  <a onclick="logout()" style="background:#c62828;">Logout</a>
+</div>
+
+<div class="content">
+  <h1>Your Skills</h1>
+  <pre id="skills"></pre>
+</div>
+
+<script>
+if(!localStorage.getItem("token")) location.href="login.html";
+
+async function loadSkills(){
+  const res = await window.backend.skills.get();
+  document.getElementById("skills").innerText = JSON.stringify(res.data,null,2);
+}
+
+function logout(){ window.backend.logout(); location.href="login.html"; }
+
+loadSkills();
+</script>
+</body>
+</html>
