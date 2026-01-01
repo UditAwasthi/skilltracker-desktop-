@@ -1,31 +1,86 @@
 <!DOCTYPE html>
 <html>
-<head><link rel="stylesheet" href="style.css"></head>
-<body>
-<div class="sidebar">
-  <h2>SkillTracker</h2>
-  <a href="dashboard.html">Dashboard</a>
-  <a href="skills.html">Skills</a>
-  <a href="streak.html">Streak</a>
-  <a onclick="logout()" style="background:#c62828;">Logout</a>
-</div>
+<head>
+<script src="https://cdn.tailwindcss.com"></script>
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 
-<div class="content">
-  <h1>Dashboard</h1>
-  <button onclick="loadData()">Refresh</button>
-  <pre id="data"></pre>
-</div>
+<style>
+.nav-btn {
+  display: block;
+  padding: 0.5rem 1rem;
+  border-radius: 0.375rem;
+  background: #374151;
+  margin-bottom: .5rem;
+  transition: 0.2s;
+}
+.nav-btn:hover { background: #4f46e5; }
+.card{
+  background:#1f1f1f;
+  padding:1.5rem;
+  border-radius:.75rem;
+  font-size:1.2rem;
+  font-weight:bold;
+  display:flex;
+  justify-content:space-between;
+}
+.card span{ color:#4f46e5; }
+</style>
+</head>
+
+<body class="bg-gray-900 text-gray-100 flex h-screen">
+
+<!-- Sidebar -->
+<aside class="w-64 bg-gray-800 p-6 space-y-4">
+  <h2 class="text-2xl font-bold mb-6">⚡ SkillTracker</h2>
+  <a href="dashboard.html" class="nav-btn">Dashboard</a>
+  <a href="skills.html" class="nav-btn">Skills</a>
+  <a href="streak.html" class="nav-btn">Streak</a>
+  <button onclick="logout()" class="bg-red-600 hover:bg-red-700 px-4 py-2 rounded w-full mt-auto">Logout</button>
+</aside>
+
+<!-- Page Content -->
+<main id="app-body" class="flex-1 p-8 overflow-y-auto"></main>
 
 <script>
-if(!localStorage.getItem("token")) location.href="login.html";
+// ensure user is authenticated
+if(!localStorage.getItem("token")) location.href = "login.html";
 
-async function loadData(){
+document.addEventListener("DOMContentLoaded", () => {
+  const container = document.getElementById("app-body");
+  container.innerHTML = `
+    <h1 class='text-3xl font-bold mb-6'>Dashboard</h1>
+    <div id="cards" class="grid grid-cols-3 gap-4 mb-10"></div>
+    <canvas id="progressChart" class="bg-gray-800 p-6 rounded-xl"></canvas>
+  `;
+  loadDashboard();
+});
+
+async function loadDashboard(){
   const res = await window.backend.dashboard();
-  if(res.status === 401){ logout(); return; }
-  document.getElementById("data").innerText = JSON.stringify(res.data,null,2);
+  if(res.status === 401) return logout();
+
+  const user = res.data.user;
+
+  document.getElementById("cards").innerHTML = `
+    <div class="card">Skills <span>${user?.selectedskills?.length || 0}</span></div>
+    <div class="card">Streak <span>${res.data.streak || 0}</span></div>
+    <div class="card">Joined <span>${new Date(user.createdAt).toDateString()}</span></div>
+  `;
+
+  new Chart(document.getElementById("progressChart"),{
+    type:"line",
+    data:{
+      labels:["Mon","Tue","Wed","Thu","Fri","Sat","Sun"],
+      datasets:[{label:"Activity",data:[2,3,4,3,5,6,7],borderColor:"#4f46e5"}]
+    }
+  });
 }
-function logout(){ window.backend.logout(); location.href="login.html"; }
-loadData();
+
+function logout(){
+  window.backend.logout();
+  location.href = "login.html";
+}
 </script>
+
 </body>
 </html>

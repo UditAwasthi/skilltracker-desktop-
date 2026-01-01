@@ -1,28 +1,26 @@
 const { contextBridge } = require("electron");
 
-// request wrapper
-async function api(path, method = "GET", body = null) {
+async function api(path, method="GET", body=null){
   const token = localStorage.getItem("token");
   const res = await fetch(`http://localhost:8000${path}`, {
     method,
     headers: {
-      "Content-Type": "application/json",
-      ...(token ? { Authorization: `Bearer ${token}` } : {})
+      "Content-Type":"application/json",
+      ...(token && {"Authorization":`Bearer ${token}`})
     },
-    body: body ? JSON.stringify(body) : null,
+    body: body ? JSON.stringify(body) : null
   });
-
-  const data = await res.json().catch(() => ({}));
-  return { status: res.status, data };
+  const data = await res.json().catch(()=>({}));
+  return {status:res.status,data};
 }
 
-contextBridge.exposeInMainWorld("backend", {
-  login: (payload) => api("/auth/login", "POST", payload),
-  dashboard: () => api("/user/dashboard"),
-  skills: {
-    get: () => api("/skills"),
-    add: (payload) => api("/skills", "POST", payload),
+contextBridge.exposeInMainWorld("backend",{
+  login:(p)=>api("/auth/login","POST",p),
+  dashboard:()=>api("/user/dashboard"),
+  skills:{
+    get:()=>api("/skills"),
+    add:(p)=>api("/skills","POST",p),
   },
-  streak: () => api("/user/streak", "GET"),
-  logout: () => localStorage.removeItem("token"),
+  streak:()=>api("/user/streak"),
+  logout:()=>localStorage.removeItem("token")
 });

@@ -1,31 +1,102 @@
 <!DOCTYPE html>
 <html>
-<head><link rel="stylesheet" href="style.css"></head>
-<body>
-<div class="sidebar">
-  <h2>SkillTracker</h2>
-  <a href="dashboard.html">Dashboard</a>
-  <a href="skills.html">Skills</a>
-  <a href="streak.html">Streak</a>
-  <a onclick="logout()" style="background:#c62828;">Logout</a>
-</div>
+<head>
+<script src="https://cdn.tailwindcss.com"></script>
 
-<div class="content">
-  <h1>Your Skills</h1>
-  <pre id="skills"></pre>
-</div>
+<style>
+.nav-btn {
+  display:block;padding:.5rem 1rem;border-radius:.375rem;
+  background:#374151;margin-bottom:.5rem;transition:0.2s;
+}
+.nav-btn:hover {background:#4f46e5}
+.card{
+  background:#1f1f1f;padding:1.25rem;border-radius:.75rem;
+}
+</style>
+
+</head>
+
+<body class="bg-gray-900 text-gray-100 flex h-screen">
+
+<!-- Sidebar -->
+<aside class="w-64 bg-gray-800 p-6 space-y-4">
+  <h2 class="text-2xl font-bold mb-6">⚡ SkillTracker</h2>
+  <a href="dashboard.html" class="nav-btn">Dashboard</a>
+  <a href="skills.html" class="nav-btn">Skills</a>
+  <a href="streak.html" class="nav-btn">Streak</a>
+  <button onclick="logout()" class="bg-red-600 hover:bg-red-700 px-4 py-2 rounded w-full mt-auto">Logout</button>
+</aside>
+
+<!-- Page Body -->
+<main id="app-body" class="flex-1 p-8 overflow-y-auto"></main>
 
 <script>
+// prevent access without token
 if(!localStorage.getItem("token")) location.href="login.html";
+
+// WAIT until the entire layout exists
+document.addEventListener("DOMContentLoaded", () => {
+
+  const app = document.getElementById("app-body");
+
+  app.innerHTML = `
+    <h1 class="text-3xl font-bold mb-6">Skills</h1>
+
+    <button onclick="openAddModal()"
+      class="bg-indigo-600 hover:bg-indigo-700 p-3 rounded mb-4">
+      + Add Skill
+    </button>
+
+    <div id="skills" class="grid grid-cols-2 gap-4"></div>
+
+    <!-- Modal Container -->
+    <div id="modalContainer"></div>
+  `;
+
+  loadSkills();
+});
 
 async function loadSkills(){
   const res = await window.backend.skills.get();
-  document.getElementById("skills").innerText = JSON.stringify(res.data,null,2);
+  document.getElementById("skills").innerHTML = res.data.map(s => `
+    <div class="card">
+      <h2 class="text-xl font-bold">${s.name}</h2>
+      <p class="text-gray-400 text-sm">${s.category}</p>
+      <p class="text-indigo-400">${s.level}</p>
+    </div>
+  `).join('');
 }
 
-function logout(){ window.backend.logout(); location.href="login.html"; }
+function openAddModal(){
+  document.getElementById("modalContainer").innerHTML = `
+  <div class="fixed inset-0 bg-black/60 flex items-center justify-center">
+    <div class="bg-gray-800 p-6 rounded-lg w-96">
+      <h2 class="text-xl font-bold mb-4">Add Skill</h2>
+      <input id="skillName" class="w-full p-2 bg-gray-700 rounded mb-2" placeholder="Skill Name"/>
+      <input id="skillCategory" class="w-full p-2 bg-gray-700 rounded mb-4" placeholder="Category"/>
+      <button onclick="saveSkill()" class="bg-indigo-600 hover:bg-indigo-700 p-2 w-full rounded">Save</button>
+      <button onclick="closeModal()" class="mt-2 text-gray-300 hover:text-white w-full">Cancel</button>
+    </div>
+  </div>`;
+}
 
-loadSkills();
+async function saveSkill(){
+  await window.backend.skills.add({
+    name: document.getElementById("skillName").value,
+    category: document.getElementById("skillCategory").value,
+    level: "beginner"
+  });
+  closeModal();
+  loadSkills();
+}
+
+function closeModal(){ document.getElementById("modalContainer").innerHTML = ""; }
+
+function logout(){
+  localStorage.removeItem("token");
+  location.href="login.html";
+}
 </script>
+
 </body>
 </html>

@@ -1,29 +1,23 @@
-<!DOCTYPE html>
-<html>
-<head><link rel="stylesheet" href="style.css"></head>
-<body style="display:flex;justify-content:center;align-items:center;">
+<!DOCTYPE html><html><head>
+<script src="https://cdn.tailwindcss.com"></script>
+</head><body class="bg-gray-900 h-screen flex items-center justify-center text-gray-100">
 
-<div style="text-align:center;background:white;padding:40px;border-radius:10px;">
-  <h2>SkillTracker Login</h2>
-  <input id="email" placeholder="Email"/><br/>
-  <input id="password" type="password" placeholder="Password"/><br/>
-  <button onclick="login()">Login</button>
-  <p id="msg" style="color:red;"></p>
+<div class="bg-gray-800 p-10 rounded-xl w-[360px] space-y-6 shadow-lg">
+  <h2 class="text-2xl font-bold text-center">Login</h2>
+
+  <input id="email" class="w-full p-3 rounded bg-gray-700" placeholder="Email">
+  <input id="password" type="password" class="w-full p-3 rounded bg-gray-700" placeholder="Password">
+
+  <button onclick="login()" class="w-full bg-indigo-600 hover:bg-indigo-700 p-3 rounded">Sign In</button>
+  <p id="msg" class="text-red-400 text-center"></p>
 </div>
 
 <script>
-async function login() {
-  const email = document.getElementById("email").value;
-  const password = document.getElementById("password").value;
-
-  const res = await window.backend.login({email, password});
-  if(res.status === 200 && res.data.token){
-    localStorage.setItem("token", res.data.token);
-    window.location = "dashboard.html";
-  } else {
-    document.getElementById("msg").innerText = res.data?.message || "Login failed";
-  }
+async function login(){
+  const res = await window.backend.login({ email:email.value, password:password.value });
+  if(res.status===200){ localStorage.setItem("token",res.data.token); location.href="dashboard.html"; }
+  else msg.innerText=res.data.message;
 }
 </script>
-</body>
-</html>
+
+</body></html>

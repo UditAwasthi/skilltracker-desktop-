@@ -1,7 +1,5 @@
 <script>
-  if (localStorage.getItem("token")) {
-    window.location = "dashboard.html";
-  } else {
-    window.location = "login.html";
-  }
+localStorage.getItem("token")
+? location.href="dashboard.html"
+: location.href="login.html";
 </script>
