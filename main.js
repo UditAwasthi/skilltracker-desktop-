@@ -4,15 +4,24 @@ const path = require("path");
 function createWindow() {
   const win = new BrowserWindow({
     width: 1200,
-    height: 750,
-    autoHideMenuBar: true,
+    height: 800,
+    backgroundColor: '#050505',
     webPreferences: {
-      preload: path.join(__dirname, "preload.js"),
-      contextIsolation: true
+      nodeIntegration: false,
+      contextIsolation: true,
+      partition: "persist:skilltracker" // Ensures session survives restarts
     }
   });
-  win.loadFile("views/index.html");
+
+  // Always load home first
+  win.loadFile(path.join(__dirname, "views", "home.html"));
+  
+  // Optional: Open DevTools to catch errors
+  // win.webContents.openDevTools();
 }
 
 app.whenReady().then(createWindow);
-app.on("window-all-closed", () => { if (process.platform !== "darwin") app.quit() });
+
+app.on("window-all-closed", () => {
+  if (process.platform !== "darwin") app.quit();
+});

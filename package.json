@@ -1,12 +1,12 @@
 {
-  "name": "skilltracker-electron",
+  "name": "skilltracker-desktop",
   "version": "1.0.0",
   "main": "main.js",
+  "type": "commonjs",
   "scripts": {
     "start": "electron ."
   },
   "dependencies": {
-    "chart.js": "^4.4.1",
-    "electron": "^39.2.7"
+    "electron": "^28.0.0"
   }
 }

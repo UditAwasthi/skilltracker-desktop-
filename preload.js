@@ -1,26 +1,46 @@
 const { contextBridge } = require("electron");
 
-async function api(path, method="GET", body=null){
-  const token = localStorage.getItem("token");
-  const res = await fetch(`http://localhost:8000${path}`, {
-    method,
-    headers: {
-      "Content-Type":"application/json",
-      ...(token && {"Authorization":`Bearer ${token}`})
-    },
-    body: body ? JSON.stringify(body) : null
-  });
-  const data = await res.json().catch(()=>({}));
-  return {status:res.status,data};
-}
+const API_BASE = "http://localhost:8000";
 
-contextBridge.exposeInMainWorld("backend",{
-  login:(p)=>api("/auth/login","POST",p),
-  dashboard:()=>api("/user/dashboard"),
-  skills:{
-    get:()=>api("/skills"),
-    add:(p)=>api("/skills","POST",p),
+contextBridge.exposeInMainWorld("backend", {
+
+  login: async (data) => {
+    const res = await fetch(`${API_BASE}/auth/login`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      credentials: "include",
+      body: JSON.stringify(data)
+    });
+    return res.json();
   },
-  streak:()=>api("/user/streak"),
-  logout:()=>localStorage.removeItem("token")
+
+  dashboard: async () => {
+    const res = await fetch(`${API_BASE}/user/dashboard`, {
+      headers: {
+        Authorization: "Bearer " + localStorage.getItem("token")
+      }
+    });
+    return res.json();
+  },
+
+  streak: async () => {
+    const res = await fetch(`${API_BASE}/user/streak`, {
+      headers: {
+        Authorization: "Bearer " + localStorage.getItem("token")
+      }
+    });
+    return res.json();
+  },
+
+  skills: {
+    get: async () => {
+      const res = await fetch(`${API_BASE}/skills`, {
+        headers: {
+          Authorization: "Bearer " + localStorage.getItem("token")
+        }
+      });
+      return res.json();
+    }
+  }
+
 });

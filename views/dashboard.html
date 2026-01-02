@@ -1,84 +1,154 @@
 <!DOCTYPE html>
-<html>
+<html lang="en" class="light">
 <head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>SkillTracker • Dashboard</title>
+
 <script src="https://cdn.tailwindcss.com"></script>
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 
+<script>
+  tailwind.config = { darkMode: 'class' }
+  function toggleTheme(){ document.documentElement.classList.toggle("dark") }
+</script>
+
 <style>
-.nav-btn {
-  display: block;
-  padding: 0.5rem 1rem;
-  border-radius: 0.375rem;
-  background: #374151;
-  margin-bottom: .5rem;
-  transition: 0.2s;
-}
-.nav-btn:hover { background: #4f46e5; }
-.card{
-  background:#1f1f1f;
-  padding:1.5rem;
-  border-radius:.75rem;
-  font-size:1.2rem;
-  font-weight:bold;
-  display:flex;
-  justify-content:space-between;
-}
-.card span{ color:#4f46e5; }
+body { font-family: -apple-system, BlinkMacSystemFont, "Inter", sans-serif; }
 </style>
 </head>
 
-<body class="bg-gray-900 text-gray-100 flex h-screen">
+<body class="bg-[#f4f4f7] dark:bg-[#050505] text-zinc-900 dark:text-zinc-100 h-screen overflow-hidden">
 
-<!-- Sidebar -->
-<aside class="w-64 bg-gray-800 p-6 space-y-4">
-  <h2 class="text-2xl font-bold mb-6">⚡ SkillTracker</h2>
-  <a href="dashboard.html" class="nav-btn">Dashboard</a>
-  <a href="skills.html" class="nav-btn">Skills</a>
-  <a href="streak.html" class="nav-btn">Streak</a>
-  <button onclick="logout()" class="bg-red-600 hover:bg-red-700 px-4 py-2 rounded w-full mt-auto">Logout</button>
+<div class="flex h-full">
+
+<!-- SIDEBAR -->
+<aside class="w-[18vw] min-w-[220px] bg-white/60 dark:bg-zinc-900/60 backdrop-blur-xl
+              border-r border-black/10 dark:border-white/10 p-6 flex flex-col">
+
+  <h1 class="text-xl font-semibold mb-10 tracking-tight">SkillTracker</h1>
+
+  <nav class="flex flex-col gap-2 text-sm font-medium">
+    <a class="px-4 py-2 rounded-lg bg-black/5 dark:bg-white/10">Dashboard</a>
+    <a href="skills.html" class="px-4 py-2 rounded-lg hover:bg-black/5 dark:hover:bg-white/10">Skills</a>
+    <a href="streak.html" class="px-4 py-2 rounded-lg hover:bg-black/5 dark:hover:bg-white/10">Streak</a>
+    <a href="playlist.html" class="px-4 py-2 rounded-lg hover:bg-black/5 dark:hover:bg-white/10">Playlist</a>
+    <a href="progress.html" class="px-4 py-2 rounded-lg hover:bg-black/5 dark:hover:bg-white/10">Progress</a>
+  </nav>
+
+  <div class="mt-auto flex flex-col gap-3">
+    <button onclick="toggleTheme()" class="text-xs opacity-60 hover:opacity-100">Toggle Theme</button>
+    <button onclick="logout()" class="text-xs text-red-500">Logout</button>
+  </div>
 </aside>
 
-<!-- Page Content -->
-<main id="app-body" class="flex-1 p-8 overflow-y-auto"></main>
+<!-- MAIN -->
+<main class="flex-1 p-10 overflow-y-auto">
+
+<!-- HEADER -->
+<header class="mb-10">
+  <h2 class="text-3xl font-light">Dashboard</h2>
+  <p class="text-sm opacity-60 mt-1">Your learning overview</p>
+</header>
+
+<!-- KPI CARDS -->
+<section class="grid grid-cols-3 gap-6 mb-10">
+  <div class="bg-white/60 dark:bg-zinc-900/60 p-6 rounded-2xl border border-black/10 dark:border-white/10">
+    <p class="text-xs uppercase opacity-60">Active Skills</p>
+    <h3 id="skillsCount" class="text-4xl font-semibold mt-2">--</h3>
+  </div>
+
+  <div class="bg-white/60 dark:bg-zinc-900/60 p-6 rounded-2xl border border-black/10 dark:border-white/10">
+    <p class="text-xs uppercase opacity-60">Current Streak</p>
+    <h3 id="streakCount" class="text-4xl font-semibold mt-2">--</h3>
+  </div>
+
+  <div class="bg-white/60 dark:bg-zinc-900/60 p-6 rounded-2xl border border-black/10 dark:border-white/10">
+    <p class="text-xs uppercase opacity-60">Focus Today</p>
+    <h3 id="focusText" class="text-lg font-medium mt-3">--</h3>
+  </div>
+</section>
+
+<!-- CHARTS -->
+<section class="grid grid-cols-2 gap-8">
+
+  <div class="bg-white/60 dark:bg-zinc-900/60 p-6 rounded-2xl border border-black/10 dark:border-white/10">
+    <p class="text-sm font-medium mb-4">Weekly Progress</p>
+    <canvas id="progressChart"></canvas>
+  </div>
+
+  <div class="bg-white/60 dark:bg-zinc-900/60 p-6 rounded-2xl border border-black/10 dark:border-white/10">
+    <p class="text-sm font-medium mb-4">Skill Distribution</p>
+    <canvas id="skillChart"></canvas>
+  </div>
+
+</section>
+
+</main>
+</div>
 
 <script>
-// ensure user is authenticated
-if(!localStorage.getItem("token")) location.href = "login.html";
+const API = "http://localhost:8000";
 
-document.addEventListener("DOMContentLoaded", () => {
-  const container = document.getElementById("app-body");
-  container.innerHTML = `
-    <h1 class='text-3xl font-bold mb-6'>Dashboard</h1>
-    <div id="cards" class="grid grid-cols-3 gap-4 mb-10"></div>
-    <canvas id="progressChart" class="bg-gray-800 p-6 rounded-xl"></canvas>
-  `;
-  loadDashboard();
-});
+setTimeout(async () => {
+  const token = localStorage.getItem("token");
+  if (!token) return location.href="login.html";
 
-async function loadDashboard(){
-  const res = await window.backend.dashboard();
-  if(res.status === 401) return logout();
+  try {
+    const res = await fetch(`${API}/user/dashboard`, {
+      headers: { Authorization: `Bearer ${token}` }
+    });
+    if (!res.ok) throw new Error();
 
-  const user = res.data.user;
+    const data = await res.json();
 
-  document.getElementById("cards").innerHTML = `
-    <div class="card">Skills <span>${user?.selectedskills?.length || 0}</span></div>
-    <div class="card">Streak <span>${res.data.streak || 0}</span></div>
-    <div class="card">Joined <span>${new Date(user.createdAt).toDateString()}</span></div>
-  `;
+    document.getElementById("skillsCount").innerText =
+      data.user.selectedskills.length;
 
-  new Chart(document.getElementById("progressChart"),{
-    type:"line",
-    data:{
-      labels:["Mon","Tue","Wed","Thu","Fri","Sat","Sun"],
-      datasets:[{label:"Activity",data:[2,3,4,3,5,6,7],borderColor:"#4f46e5"}]
-    }
+    document.getElementById("streakCount").innerText =
+      data.streak + " days";
+
+    document.getElementById("focusText").innerText =
+      data.todayFocus || "No focus set";
+
+    renderCharts(data);
+
+  } catch {
+    localStorage.clear();
+    location.href="login.html";
+  }
+}, 0);
+
+function renderCharts(data){
+  new Chart(progressChart, {
+    type: "line",
+    data: {
+      labels: ["Mon","Tue","Wed","Thu","Fri","Sat","Sun"],
+      datasets: [{
+        data: [1,2,2,3,4,5,6],
+        borderColor: "#111",
+        tension: 0.4
+      }]
+    },
+    options: { plugins:{legend:{display:false}} }
+  });
+
+  new Chart(skillChart, {
+    type: "bar",
+    data: {
+      labels: ["Frontend","Backend","DSA","DevOps"],
+      datasets: [{
+        data: [4,3,2,1],
+        backgroundColor: "#111"
+      }]
+    },
+    options: { plugins:{legend:{display:false}} }
   });
 }
 
 function logout(){
-  window.backend.logout();
-  location.href = "login.html";
+  localStorage.clear();
+  location.href="login.html";
 }
 </script>
 

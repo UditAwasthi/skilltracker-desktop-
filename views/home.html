@@ -1,0 +1,152 @@
+<!DOCTYPE html>
+<html lang="en" class="light">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>SkillTracker • Home</title>
+
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+      tailwind.config = { darkMode: "class" };
+      function toggleTheme() {
+        document.documentElement.classList.toggle("dark");
+      }
+    </script>
+
+    <style>
+      body {
+        font-family: -apple-system, BlinkMacSystemFont, "Inter", sans-serif;
+      }
+
+      @keyframes morph {
+        0% {
+          transform: translate(0, 0) scale(1);
+          opacity: 0.3;
+        }
+        33% {
+          transform: translate(2vw, -5vh) scale(1.2);
+          opacity: 0.5;
+        }
+        66% {
+          transform: translate(-3vw, 5vh) scale(0.8);
+          opacity: 0.2;
+        }
+        100% {
+          transform: translate(0, 0) scale(1);
+          opacity: 0.3;
+        }
+      }
+
+      .blob {
+        position: absolute;
+        border-radius: 50%;
+        filter: blur(100px);
+        z-index: -1;
+        animation: morph 18s infinite ease-in-out;
+      }
+    </style>
+  </head>
+
+  <body
+    class="h-[100vh] w-[100vw] overflow-hidden flex items-center justify-center transition-colors duration-700 bg-[#f4f4f7] dark:bg-[#050505] text-zinc-900 dark:text-zinc-100"
+  >
+    <!-- Theme Toggle -->
+    <button
+      onclick="toggleTheme()"
+      class="absolute top-[4vh] right-[4vw] z-50 group"
+    >
+      <div
+        class="flex items-center gap-3 bg-black/5 dark:bg-white/10 px-4 py-2 rounded-full border border-black/10 dark:border-white/20 transition-all hover:scale-105 active:scale-95"
+      >
+        <span
+          class="text-[0.7vw] font-bold tracking-widest uppercase opacity-60 group-hover:opacity-100"
+          >Theme</span
+        >
+        <div
+          class="w-[1vw] h-[1vw] rounded-full bg-zinc-800 dark:bg-zinc-200"
+        ></div>
+      </div>
+    </button>
+
+    <!-- Background Blobs -->
+    <div
+      class="blob w-[50vw] h-[50vw] bg-black/10 dark:bg-white/5 top-[-10vh] left-[-5vw]"
+    ></div>
+    <div
+      class="blob w-[40vw] h-[40vw] bg-black/5 dark:bg-white/[0.02] bottom-[-10vh] right-[-5vw]"
+      style="animation-delay: -9s"
+    ></div>
+
+    <!-- Main Container -->
+    <div class="relative w-[32vw] min-w-[420px] flex flex-col items-center">
+      <!-- Header -->
+      <header class="mb-[6vh] text-center">
+        <h1 class="text-[2.2vw] font-light tracking-tighter">SkillTracker</h1>
+        <p
+          class="text-zinc-500 dark:text-zinc-400 text-[0.8vw] font-medium tracking-widest uppercase mt-[1vh]"
+        >
+          Session Active
+        </p>
+      </header>
+
+      <!-- Glass Card -->
+      <div
+        class="w-full bg-white/40 dark:bg-zinc-900/40 backdrop-blur-[40px] p-[2.5vw] rounded-[3vw] border border-black/10 dark:border-white/10 shadow-[0_30px_60px_rgba(0,0,0,0.08)]"
+      >
+        <div class="space-y-[4vh] text-center">
+          <div>
+            <p
+              class="text-zinc-500 dark:text-zinc-400 text-[0.7vw] tracking-widest uppercase mb-[1vh]"
+            >
+              Logged in as
+            </p>
+            <h2 id="username" class="text-[1.4vw] font-semibold"></h2>
+            <p id="email" class="text-[0.8vw] opacity-60 mt-[0.5vh]"></p>
+          </div>
+
+          <div class="flex flex-col gap-[2vh]">
+            <button
+              onclick="location.href='dashboard.html'"
+              class="w-full bg-zinc-900 dark:bg-zinc-100 text-white dark:text-black font-bold py-[2.2vh] rounded-[1vw] transition-all ..."
+            >
+              Enter SkillTracker
+            </button>
+
+            <button
+              onclick="logout()"
+              class="w-full bg-transparent border border-black/20 dark:border-white/20 text-zinc-600 dark:text-zinc-300 py-[1.8vh] rounded-[1vw] text-[0.8vw] transition hover:bg-black/5 dark:hover:bg-white/5"
+            >
+              Logout
+            </button>
+          </div>
+        </div>
+      </div>
+
+      <!-- Footer -->
+      <p
+        class="absolute bottom-[-10vh] text-[0.65vw] tracking-[0.4em] uppercase opacity-30 text-zinc-600 dark:text-zinc-400"
+      >
+        SkillTracker Core • Secure Runtime
+      </p>
+    </div>
+
+    <script>
+      setTimeout(() => {
+        const token = localStorage.getItem("token");
+        const user = JSON.parse(localStorage.getItem("user"));
+
+        if (!token || !user) {
+          location.href = "login.html";
+        } else {
+          document.getElementById("username").innerText = user.username;
+          document.getElementById("email").innerText = user.email;
+        }
+      }, 0);
+
+      function logout() {
+        localStorage.clear();
+        location.href = "login.html";
+      }
+    </script>
+  </body>
+</html>

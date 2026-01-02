@@ -1,0 +1,136 @@
+<!DOCTYPE html>
+<html lang="en" class="light">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>System Registration</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = { darkMode: 'class' }
+        function toggleTheme() { document.documentElement.classList.toggle('dark'); }
+    </script>
+    <style>
+        body { font-family: -apple-system, BlinkMacSystemFont, "Inter", sans-serif; }
+        
+        @keyframes morph {
+            0% { transform: translate(0, 0) scale(1); opacity: 0.3; }
+            33% { transform: translate(2vw, -5vh) scale(1.2); opacity: 0.5; }
+            66% { transform: translate(-3vw, 5vh) scale(0.8); opacity: 0.2; }
+            100% { transform: translate(0, 0) scale(1); opacity: 0.3; }
+        }
+
+        .blob {
+            position: absolute;
+            border-radius: 50%;
+            filter: blur(100px);
+            z-index: -1;
+            animation: morph 15s infinite ease-in-out;
+        }
+
+        .typing {
+            width: 0;
+            overflow: hidden;
+            white-space: nowrap;
+            border-right: 2px solid currentColor;
+            animation: typing 4s steps(20) infinite, blink 0.7s infinite;
+        }
+
+        @keyframes typing {
+            0%, 10% { width: 0; }
+            50%, 90% { width: 100%; }
+            100% { width: 0; }
+        }
+
+        @keyframes blink { 50% { border-color: transparent; } }
+    </style>
+</head>
+<body class="h-[100vh] w-[100vw] overflow-hidden flex items-center justify-center transition-colors duration-700 bg-[#f4f4f7] dark:bg-[#050505] text-zinc-900 dark:text-zinc-100">
+
+    <button onclick="toggleTheme()" class="absolute top-[4vh] right-[4vw] z-50 group">
+        <div class="flex items-center gap-3 bg-black/5 dark:bg-white/10 px-4 py-2 rounded-full border border-black/10 dark:border-white/20 transition-all hover:scale-105 active:scale-95">
+            <span class="text-[0.7vw] font-bold tracking-widest uppercase opacity-60 group-hover:opacity-100">Theme</span>
+            <div class="w-[1vw] h-[1vw] rounded-full bg-zinc-800 dark:bg-zinc-200"></div>
+        </div>
+    </button>
+
+    <div class="blob w-[50vw] h-[50vw] bg-black/10 dark:bg-white/5 top-[-10vh] left-[-5vw]"></div>
+    <div class="blob w-[40vw] h-[40vw] bg-black/5 dark:bg-white/[0.02] bottom-[-10vh] right-[-5vw]" style="animation-delay: -7s;"></div>
+
+    <div class="relative w-[28vw] min-w-[350px] flex flex-col items-center">
+        
+        <header class="mb-[5vh] text-center">
+            <h1 class="text-[2.5vw] font-light tracking-tighter text-black dark:text-white">Create Account</h1>
+            <p class="text-zinc-500 dark:text-zinc-400 text-[0.8vw] font-medium tracking-widest uppercase mt-[1vh]">Join the System Node</p>
+        </header>
+
+        <div class="w-full bg-white/40 dark:bg-zinc-900/40 backdrop-blur-[40px] p-[2.5vw] rounded-[3vw] border border-black/10 dark:border-white/10 shadow-[0_30px_60px_rgba(0,0,0,0.08)]">
+            <div class="space-y-[3vh]">
+                <div class="space-y-[1.8vh]">
+                    <input id="username" type="text" placeholder="Username" 
+                        class="w-full bg-black/[0.04] dark:bg-white/[0.04] border border-black/10 dark:border-white/10 rounded-[1vw] px-[1.5vw] py-[1.8vh] text-[0.9vw] focus:outline-none focus:bg-white dark:focus:bg-black focus:border-black/30 dark:focus:border-white/30 transition-all placeholder:text-zinc-400 dark:placeholder:text-zinc-500 font-medium">
+                    
+                    <input id="email" type="email" placeholder="Email Address" 
+                        class="w-full bg-black/[0.04] dark:bg-white/[0.04] border border-black/10 dark:border-white/10 rounded-[1vw] px-[1.5vw] py-[1.8vh] text-[0.9vw] focus:outline-none focus:bg-white dark:focus:bg-black focus:border-black/30 dark:focus:border-white/30 transition-all placeholder:text-zinc-400 dark:placeholder:text-zinc-500 font-medium">
+                    
+                    <input id="password" type="password" placeholder="Key Phrase (Password)" 
+                        class="w-full bg-black/[0.04] dark:bg-white/[0.04] border border-black/10 dark:border-white/10 rounded-[1vw] px-[1.5vw] py-[1.8vh] text-[0.9vw] focus:outline-none focus:bg-white dark:focus:bg-black focus:border-black/30 dark:focus:border-white/30 transition-all placeholder:text-zinc-400 dark:placeholder:text-zinc-500 font-medium">
+                </div>
+
+                <button onclick="signup()" 
+                    class="w-full bg-zinc-900 dark:bg-zinc-100 text-white dark:text-black font-bold py-[2.2vh] rounded-[1vw] transition-all hover:bg-black dark:hover:bg-white hover:scale-[1.01] active:scale-[0.98] flex items-center justify-center gap-[1vw] text-[1vw] shadow-2xl">
+                    <span>Register</span>
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-[1.2vw] w-[1.2vw] fill-none stroke-current" viewBox="0 0 24 24" stroke-width="2.5">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M12 4v16m8-8H4" />
+                    </svg>
+                </button>
+            </div>
+
+            <footer class="mt-[4vh] flex items-center justify-center gap-[2vw] text-[0.65vw] font-bold tracking-[0.2em] uppercase">
+                <span class="text-zinc-400 dark:text-zinc-500">Already registered?</span>
+                <a href="login.html" class="text-zinc-900 dark:text-zinc-100 hover:underline decoration-2 underline-offset-4">Login</a>
+            </footer>
+        </div>
+
+        <p id="msg" class="mt-4 text-xs font-bold text-center text-zinc-500 h-4"></p>
+
+        <div class="absolute bottom-[-10vh] flex flex-col items-center">
+            <div class="typing-container inline-flex">
+                <p class="typing text-[0.7vw] font-mono tracking-[0.4em] uppercase opacity-30 text-zinc-600 dark:text-zinc-400">System_Deployment_v2.0.16</p>
+            </div>
+        </div>
+    </div>
+
+<script>
+async function signup() {
+    const msg = document.getElementById('msg');
+    msg.innerText = "Processing registration...";
+    
+    try {
+        const res = await fetch("http://localhost:8000/auth/register", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({
+                username: document.getElementById('username').value,
+                email: document.getElementById('email').value,
+                password: document.getElementById('password').value
+            })
+        });
+
+        const data = await res.json();
+
+        if (res.ok) {
+            msg.classList.replace('text-zinc-500', 'text-green-500');
+            msg.innerText = "Success. Initializing login redirect...";
+            setTimeout(() => location.href = "login.html", 1500);
+        } else {
+            msg.classList.add('text-red-500');
+            msg.innerText = data.message || "Registration encountered an error";
+        }
+    } catch (err) {
+        msg.innerText = "Network protocol failure";
+    }
+}
+</script>
+
+</body>
+</html>
